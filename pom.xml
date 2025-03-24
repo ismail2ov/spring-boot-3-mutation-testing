@@ -222,6 +222,11 @@
             <version>0.16</version>
           </dependency>
         </dependencies>
+        <configuration>
+          <excludedTestClasses>
+            <param>**.*IntegrationTest</param>
+          </excludedTestClasses>
+        </configuration>
       </plugin>
     </plugins>
   </build>
