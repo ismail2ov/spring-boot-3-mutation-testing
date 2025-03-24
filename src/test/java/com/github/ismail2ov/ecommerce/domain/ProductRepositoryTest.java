@@ -25,6 +25,6 @@ class ProductRepositoryTest {
         Product product2 = new Product(2L, "Samsonite Airglow Laptop Sleeve 13.3", "41,34 €");
         Product product3 = new Product(3L, "Logitech Wireless Mouse M185", "10,78 €");
 
-        assertThat(actual).containsAnyElementsOf(List.of(product2, product3));
+    assertThat(actual).containsExactly(product2, product3);
     }
 }

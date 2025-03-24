@@ -28,6 +28,6 @@ class BasketRepositoryTest {
 
         Optional<Basket> actual = basketRepository.getByUserId(456L);
 
-        assertThat(actual.isPresent()).isTrue();
+        assertThat(actual).contains(expected);
     }
 }
