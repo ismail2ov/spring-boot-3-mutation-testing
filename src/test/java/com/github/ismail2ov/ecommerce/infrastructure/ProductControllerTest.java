@@ -2,6 +2,7 @@ package com.github.ismail2ov.ecommerce.infrastructure;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.ismail2ov.ecommerce.application.ProductService;
@@ -52,7 +53,11 @@ class ProductControllerTest {
 
         this.mockMvc
             .perform(get("/products"))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.size()").value(4))
+            .andExpect(jsonPath("$[1].id").value(2))
+            .andExpect(jsonPath("$[1].name").value("Samsonite Airglow Laptop Sleeve 13.3"))
+            .andExpect(jsonPath("$[1].price").value("41,34 €"));
     }
 
     @Test
@@ -64,7 +69,11 @@ class ProductControllerTest {
 
         this.mockMvc
             .perform(get("/products/1"))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.product.id").value(1))
+            .andExpect(jsonPath("$.product.name").value("Dell Latitude 3301 Intel Core i7-8565U/8GB/512GB SSD/13.3"))
+            .andExpect(jsonPath("$.product.price").value("999,00 €"))
+            .andExpect(jsonPath("$.cross_selling.size()").value(2));
     }
 
     @Test
