@@ -223,6 +223,12 @@
           </dependency>
         </dependencies>
         <configuration>
+          <excludedClasses>
+            <param>**.*Application</param>
+            <param>**.*RDTO</param>
+            <param>**.*MapperImpl</param>
+            <param>**.controller.api.ApiUtil</param>
+          </excludedClasses>
           <excludedTestClasses>
             <param>**.*IntegrationTest</param>
           </excludedTestClasses>
