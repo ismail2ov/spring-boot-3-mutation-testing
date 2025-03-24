@@ -3,6 +3,7 @@ package com.github.ismail2ov.ecommerce.infrastructure;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +47,10 @@ class BasketControllerTest {
 
         this.mockMvc
             .perform(get("/users/1/basket"))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.userId").value(1))
+            .andExpect(jsonPath("$.items.products.size()").value(0));
     }
 
     @Test
@@ -60,10 +64,13 @@ class BasketControllerTest {
             .perform(post("/users/1/basket")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(product)))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.userId").value(1))
+            .andExpect(jsonPath("$.items.size()").value(1));
     }
 
-    public static String asJsonString(final Object obj) {
+    public String asJsonString(final Object obj) {
         try {
             return new ObjectMapper().writeValueAsString(obj);
         } catch (Exception e) {
