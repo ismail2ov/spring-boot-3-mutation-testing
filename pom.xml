@@ -223,6 +223,10 @@
           </dependency>
         </dependencies>
         <configuration>
+          <timestampedReports>false</timestampedReports>
+          <threads>8</threads>
+          <withHistory>true</withHistory>
+          <mutationThreshold>80</mutationThreshold>
           <excludedClasses>
             <param>**.*Application</param>
             <param>**.*RDTO</param>
