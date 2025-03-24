@@ -1,7 +1,9 @@
 package com.github.ismail2ov.ecommerce.infrastructure;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -11,6 +13,7 @@ import com.github.ismail2ov.ecommerce.domain.ProductNotFoundException;
 import com.github.ismail2ov.ecommerce.domain.ProductPageDTO;
 import com.github.ismail2ov.ecommerce.infrastructure.controller.ProductController;
 import com.github.ismail2ov.ecommerce.infrastructure.controller.mapper.ProductMapperImpl;
+import com.github.ismail2ov.ecommerce.infrastructure.exception.GlobalExceptionHandler;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,13 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
-@ContextConfiguration(classes = ProductController.class)
+@ContextConfiguration(classes = {ProductController.class, GlobalExceptionHandler.class})
 @Import(ProductMapperImpl.class)
 class ProductControllerTest {
 
@@ -74,6 +78,20 @@ class ProductControllerTest {
             .andExpect(jsonPath("$.product.name").value("Dell Latitude 3301 Intel Core i7-8565U/8GB/512GB SSD/13.3"))
             .andExpect(jsonPath("$.product.price").value("999,00 €"))
             .andExpect(jsonPath("$.cross_selling.size()").value(2));
+    }
+
+    @Test
+    void return_basket_not_found() throws Exception {
+
+        doThrow(ProductNotFoundException.class).when(productService).getProductBy(100L);
+
+        this.mockMvc
+            .perform(get("/products/100"))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.title").value("Out of Stock"))
+            .andExpect(jsonPath("$.detail").value("Something went wrong!"))
+            .andExpect(jsonPath("$.type").value("https://example.org/out-of-stock"));
     }
 
     @Test

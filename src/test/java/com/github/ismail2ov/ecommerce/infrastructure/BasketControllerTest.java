@@ -1,19 +1,23 @@
 package com.github.ismail2ov.ecommerce.infrastructure;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ismail2ov.ecommerce.application.BasketService;
 import com.github.ismail2ov.ecommerce.domain.Basket;
+import com.github.ismail2ov.ecommerce.domain.BasketNotFoundException;
 import com.github.ismail2ov.ecommerce.domain.Items;
 import com.github.ismail2ov.ecommerce.domain.Product;
 import com.github.ismail2ov.ecommerce.infrastructure.controller.BasketController;
 import com.github.ismail2ov.ecommerce.infrastructure.controller.mapper.BasketMapperImpl;
 import com.github.ismail2ov.ecommerce.infrastructure.controller.mapper.ProductMapperImpl;
+import com.github.ismail2ov.ecommerce.infrastructure.exception.GlobalExceptionHandler;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
-@ContextConfiguration(classes = BasketController.class)
+@ContextConfiguration(classes = {BasketController.class, GlobalExceptionHandler.class})
 @Import({ProductMapperImpl.class, BasketMapperImpl.class})
 class BasketControllerTest {
 
@@ -68,6 +72,20 @@ class BasketControllerTest {
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.userId").value(1))
             .andExpect(jsonPath("$.items.size()").value(1));
+    }
+
+    @Test
+    void return_basket_not_found() throws Exception {
+
+        doThrow(BasketNotFoundException.class).when(basketService).getBy(100L);
+
+        this.mockMvc
+            .perform(get("/users/100/basket"))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.title").value("Basket not found!"))
+            .andExpect(jsonPath("$.detail").value("Something went wrong!"))
+            .andExpect(jsonPath("$.type").value("https://example.org/basket-not-found"));
     }
 
     public String asJsonString(final Object obj) {
